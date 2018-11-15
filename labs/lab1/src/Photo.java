@@ -12,7 +12,7 @@ import org.jacop.search.*;
 public class Photo {
     public static void main(String[] args) {
 
-         // Input 1
+         // Example Input 1
          int n = 9;
          int n_prefs = 17;
          int[][] prefs = {{1,3}, {1,5}, {1,8},
@@ -21,7 +21,7 @@ public class Photo {
              {7,3}, {7,8}, {8,9}, {8,7}};
 
          /*
-         // Input 2
+         // Example Input 2
          int n = 11;
          int n_prefs = 20;
          int[][] prefs = {{1,3}, {1,5}, {2,5},
@@ -30,7 +30,7 @@ public class Photo {
              {7,3}, {7,5}, {8,9}, {8,7}, {8,10},
              {9, 11}, {10, 11}};
 
-         // Input 3
+         // Example Input 3
          int n = 15;
          int n_prefs = 20;
          int[][] prefs = {{1,3}, {1,5}, {2,5},
@@ -38,17 +38,9 @@ public class Photo {
                  {4,15}, {4,13}, {5,1}, {6,10}, {6,9},
                  {7,3}, {7,5}, {8,9}, {8,7}, {8,14},
                  {9, 13}, {10, 11}};
-          */
+         */
 
-        new Photo().SolveExamples(n, n_prefs, prefs);
-    }
-
-    private static void SolveExamples(int n, int n_prefs, int[][] prefs) {
-        try {
-            solve(n, n_prefs, prefs);
-        } catch(Exception e) {
-            System.out.println("The problem could not be solved.");
-        }
+         new Photo().solve(n, n_prefs, prefs);
     }
 
     private static void solve(int n, int n_prefs, int[][] prefs) {
