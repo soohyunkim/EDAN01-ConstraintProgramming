@@ -20,11 +20,11 @@ constraint forall(node in 1..n_dests) ( % destination nodes have >=1 connected e
   sum(edge in 1..n_edges where to[edge] = dest[node] \/ from[edge] = dest[node])(edge_used[edge]) >= 1
 );
 
-constraint forall(node in 1..graph_size) ( % in between nodes have either 0 or >=2 connected edges
+constraint forall(node in 1..graph_size) ( % in between nodes have either 0 or >1 connected edges
   if (node != start /\ forall(i in 1..n_dests)(dest[i] != node)) then
     sum(edge in 1..n_edges where to[edge] = node \/ from[edge] = node)(edge_used[edge]) == 0
     \/
-    sum(edge in 1..n_edges where to[edge] = node \/ from[edge] = node)(edge_used[edge]) >= 2
+    sum(edge in 1..n_edges where to[edge] = node \/ from[edge] = node)(edge_used[edge]) > 1
   endif
 );
 
