@@ -36,7 +36,7 @@ max_cost = sum(edge in 1..n_edges)(cost[edge]);
 var int: net_cost;
 net_cost = sum(i in 1..n_edges where edge_used[i])(cost[i]);
 
-% ensure that net cost < max cost possible
+% ensure that net cost <= max possible cost
 constraint
   sum(i in 1..n_edges where edge_used[i])(cost[i]) <= max_cost;
 
