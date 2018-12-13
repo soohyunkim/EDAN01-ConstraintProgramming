@@ -23,10 +23,38 @@ public class AutoRegressionFilter {
                 {},
                 {},
         };
-        AutoRegressionFilter.solve(del_add, del_mul, number_add, number_mul, n, last, add, mul, dependencies);
+        AutoRegressionFilter autoRegressionFilter = new AutoRegressionFilter();
+        autoRegressionFilter.solve(del_add, del_mul, number_add, number_mul, n, last, add, mul, dependencies);
     }
 
-    private static void solve(int del_add, int del_mul, int number_add, int number_mul, int n, int[] last, int[] add,
+    private void addConstraintToList(IntVar[] rs, int[] addOrMulSet, int number, ArrayList<IntVar> list, Store store) {
+        for (int i = 0; i < addOrMulSet.length; i++){
+            rs[addOrMulSet[i]-1] = new IntVar(store,1, number); //SET-UP
+            list.add(rs[addOrMulSet[i]-1]);
+        }
+    }
+
+    private void lessThanOrEqualToConstraint(IntVar[] ts, int[][] dependencies, int[] addOrMulSet, int del, Store store) {
+        for (int i = 0; i < addOrMulSet.length; i++){
+            int[] fromdep = dependencies[addOrMulSet[i]-1];
+            for (int j = 0; j < fromdep.length; j++){
+                store.impose(new XplusClteqZ(ts[addOrMulSet[i]-1], del, ts[fromdep[j]-1]));
+            }
+        }
+    }
+
+    private void diff2Constraint(IntVar[] ts, IntVar[] rs, int[] addOrMulSet, int del, Store store){
+        IntVar one = new IntVar(store,1,1);
+        IntVar cost = new IntVar(store, del, del);
+        IntVar[][] mat = new IntVar[addOrMulSet.length][1];
+        for (int i = 0; i < addOrMulSet.length; i++){
+            IntVar[] vec = {ts[addOrMulSet[i]-1], rs[addOrMulSet[i]-1], cost, one};
+            mat[i] = vec;
+        }
+        store.impose(new Diff2(mat));
+    }
+
+    private void solve(int del_add, int del_mul, int number_add, int number_mul, int n, int[] last, int[] add,
                               int[] mul, int[][] dependencies) {
         Store store = new Store();
 
@@ -39,49 +67,14 @@ public class AutoRegressionFilter {
         }
 
         IntVar[] rs = new IntVar[n];
-        for (int i = 0; i < add.length; i++){
-            rs[add[i]-1] = new IntVar(store,1, number_add); //SET-UP
-            list.add(rs[add[i]-1]);
+        addConstraintToList(rs, add, number_add, list, store);
+        addConstraintToList(rs, mul, number_mul, list, store);
 
-        }
-        for (int i = 0; i < mul.length; i++){
-            rs[mul[i]-1] = new IntVar(store,1, number_mul); //MINUS 1 FOR INDEXING
-            list.add(rs[mul[i]-1]);
-        }
+        lessThanOrEqualToConstraint(ts, dependencies, add, del_add, store);
+        lessThanOrEqualToConstraint(ts, dependencies, mul, del_mul, store);
 
-
-        for (int i = 0; i < add.length; i++){
-            int[] fromdep = dependencies[add[i]-1];
-            for (int j = 0; j < fromdep.length; j++){
-                store.impose(new XplusClteqZ(ts[add[i]-1], del_add, ts[fromdep[j]-1]));
-            }
-        }
-
-        for (int i = 0; i < mul.length; i++){
-            int[] fromdep = dependencies[mul[i]-1];
-            for (int j = 0; j < fromdep.length; j++){
-                store.impose(new XplusClteqZ(ts[mul[i]-1], del_mul, ts[fromdep[j]-1]));
-            }
-        }
-
-        IntVar one = new IntVar(store,1,1);
-        IntVar AddCost = new IntVar(store, del_add,del_add);
-        IntVar MulCost = new IntVar(store, del_mul,del_mul);
-
-        IntVar[][] AddMat = new IntVar[add.length][1];
-        IntVar[][] MulMat = new IntVar[mul.length][1];
-
-        for (int i = 0; i < add.length; i++){
-            IntVar[] vec = {ts[add[i]-1], rs[add[i]-1], AddCost, one};
-            AddMat[i] = vec;
-        }
-        for (int i = 0; i < mul.length; i++){
-            IntVar[] vec = {ts[mul[i]-1], rs[mul[i]-1], MulCost, one};
-            MulMat[i] = vec;
-        }
-
-        store.impose(new Diff2(AddMat));
-        store.impose(new Diff2(MulMat));
+        diff2Constraint(ts, rs, add, del_add, store);
+        diff2Constraint(ts, rs, mul, del_mul, store);
 
         IntVar[] ends = new IntVar[last.length];
         for (int i = 0; i < ends.length; i++){
