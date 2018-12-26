@@ -1,5 +1,4 @@
 include "globals.mzn";
-include "1.dzn";
 
 % Given input parameters
 int: n;
@@ -13,7 +12,7 @@ array[1..n, 1..n] of var 0..1: matrix;
 % Maximum points possible (solution)
 var int: max_points;
 
-% Array of row and columns of commercial lots
+% Array of row and columns of residential lots
 array[1..n] of var int: residential_column;
 array[1..n] of var int: residential_row;
 
@@ -28,15 +27,15 @@ constraint lex2(matrix);
 constraint sum(i in 1..n)(residential_row[i])= n_residential;
 constraint sum(i in 1..n)(residential_column[i])= n_residential;
 
-% Constraint - Gather residential_row and residential_column from the grid
+% Constraint - Residential_row and residential_column from the matrix
 constraint forall(i in 1..n)(residential_column[i]= sum(j in 1..n)(matrix[i, j]));
 constraint forall(i in 1..n)(residential_row[i]= sum(j in 1..n)(matrix[j, i]));
 
-% Constraint - Gather points for residential_row and residential_column
+% Constraint - Points for residential_row and residential_column
 constraint forall(i in 1..n)(point_row[i]= point_distribution[residential_row[i]]);
 constraint forall(i in 1..n)(point_column[i]= point_distribution[residential_column[i]]);
 
-% Constraint - Get max_points from summing up all the points_row and points_column from the grid
+% Constraint - Get max_points from summing up all the points_row and points_column from the matrix
 constraint max_points = sum(i in 1..n)(point_row[i]+point_column[i]);
 solve maximize max_points;
 
